@@ -1,3 +1,8 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# surface.py
+
+
 from typing import List
 from ..toroidalField import ToroidalField
 from ..toroidalField import derivatePol, derivateTor 
