@@ -1,10 +1,33 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# multiply.py
+# operate.py
 
 
 import numpy as np
 from .field import ToroidalField
+
+
+def conjugate(field: ToroidalField) -> ToroidalField: 
+    return ToroidalField(
+        nfp = field.nfp, 
+        mpol = field.mpol, 
+        ntor = field.ntor, 
+        reArr = field.reArr,
+        imArr = - field.imArr
+    )
+
+
+def add(fieldA: ToroidalField, fieldB: ToroidalField) -> ToroidalField: 
+    assert fieldA.nfp == fieldB.nfp
+    assert fieldA.mpol == fieldB.mpol
+    assert fieldA.ntor == fieldB.ntor
+    return ToroidalField(
+        nfp = fieldA.nfp, 
+        mpol = fieldA.mpol, 
+        ntor = fieldA.ntor,
+        reArr = fieldA.reArr + fieldB.reArr, 
+        imArr = fieldA.imArr + fieldB.imArr
+    )
 
 
 def multiply(c: float, field: ToroidalField) -> ToroidalField:
@@ -16,6 +39,15 @@ def multiply(c: float, field: ToroidalField) -> ToroidalField:
         imArr = c * field.imArr
     )
 
+
+def multiply_im(field: ToroidalField) -> ToroidalField: 
+    return ToroidalField(
+        nfp = field.nfp, 
+        mpol = field.mpol, 
+        ntor = field.ntor, 
+        reArr = - field.imArr,
+        imArr = field.reArr
+    )    
 
 
 def conv(fieldA: ToroidalField, fieldB: ToroidalField) -> ToroidalField: 

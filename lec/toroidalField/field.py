@@ -86,6 +86,77 @@ class ToroidalField:
         else:
             return self.imArr[self.indexMap(m, n)]
 
+    # operator overloading ####################################################
+    def __add__(self, other):
+        assert self.nfp == other.nfp
+        assert self.mpol == other.mpol
+        assert self.ntor == other.ntor
+        return ToroidalField(
+            nfp = self.nfp, 
+            mpol = self.mpol, 
+            ntor = self.ntor,
+            reArr = self.reArr + other.reArr, 
+            imArr = self.imArr + other.imArr
+        )
+
+    def __sub__(self, other):
+        assert self.nfp == other.nfp
+        assert self.mpol == other.mpol
+        assert self.ntor == other.ntor
+        return ToroidalField(
+            nfp = self.nfp, 
+            mpol = self.mpol, 
+            ntor = self.ntor,
+            reArr = self.reArr - other.reArr, 
+            imArr = self.imArr - other.imArr
+        )
+
+    def __mul__(self, other):
+        if isinstance(other, ToroidalField):
+            assert self.nfp == other.nfp
+            mpol, ntor = self.mpol, self.ntor
+            nums = (2*ntor+1)*mpol+ntor+1
+            reArr, imArr = np.zeros(nums), np.zeros(nums)
+            for i in range(nums):
+                m, n = self.indexReverseMap(i)
+                for _m in range(-mpol, mpol+1):
+                    for _n in range(-ntor, ntor+1):
+                        reArr[i] += (
+                            self.getRe(_m,_n)*other.getRe(m-_m,n-_n) - 
+                            self.getIm(_m,_n)*other.getIm(m-_m,n-_n)
+                        )
+                        imArr[i] += (
+                            self.getRe(_m,_n)*other.getIm(m-_m,n-_n) + 
+                            self.getIm(_m,_n)*other.getRe(m-_m,n-_n)
+                        )
+            return ToroidalField(
+                nfp = self.nfp, 
+                mpol = mpol, 
+                ntor = ntor,
+                reArr = reArr,
+                imArr = imArr
+            )
+        else:
+            return ToroidalField(
+                nfp = self.nfp, 
+                mpol = self.mpol, 
+                ntor = self.ntor, 
+                reArr = other * self.reArr,
+                imArr = other * self.imArr
+            )
+
+
+    def __eq__(self, other) -> bool:
+        try:
+            assert self.nfp == other.nfp
+            assert self.mpol == other.mpol
+            assert self.ntor == other.ntor
+            assert self.reArr.any() == other.reArr.any()
+            assert self.imArr.any() == other.imArr.any()
+            return True
+        except:
+            return False
+
 
 if __name__ == "__main__":
     pass
