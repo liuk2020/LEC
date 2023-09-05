@@ -3,6 +3,7 @@
 # problem.py
 
 
+from scipy.linalg import solve
 from ..geometry import Surface
 from ..toroidalField import ToroidalField
 

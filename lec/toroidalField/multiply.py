@@ -1,13 +1,24 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# convolution.py
+# multiply.py
 
 
 import numpy as np
 from .field import ToroidalField
 
 
-def multiply(fieldA: ToroidalField, fieldB: ToroidalField) -> ToroidalField: 
+def multiply(c: float, field: ToroidalField) -> ToroidalField:
+    return ToroidalField(
+        nfp = field.nfp, 
+        mpol = field.mpol, 
+        ntor = field.ntor, 
+        reArr = c * field.reArr,
+        imArr = c * field.imArr
+    )
+
+
+
+def conv(fieldA: ToroidalField, fieldB: ToroidalField) -> ToroidalField: 
     assert fieldA.nfp == fieldB.nfp
     mpol, ntor = fieldA.mpol, fieldA.ntor
     nums = (2*ntor+1)*mpol+ntor+1
