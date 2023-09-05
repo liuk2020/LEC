@@ -34,4 +34,3 @@ def derivateTor(field: ToroidalField) -> ToroidalField:
 
 if __name__ == "__main__":
     pass
-

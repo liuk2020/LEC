@@ -145,7 +145,6 @@ class ToroidalField:
                 imArr = other * self.imArr
             )
 
-
     def __eq__(self, other) -> bool:
         try:
             assert self.nfp == other.nfp
