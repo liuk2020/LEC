@@ -28,6 +28,22 @@ class SurfaceEquilibrium:
         matrixCoef = self.getMatrixCoef() 
         vectorB = self.getVectorB()
         vectorJ = solve(matrixCoef, vectorB)
+        reArr = np.zeros(self.ntor+1+self.mpol*(2*self.ntor+1))
+        imArr = np.zeros(self.ntor+1+self.mpol*(2*self.ntor+1))
+        reArr[0] = self.aveJacobian
+        for i in range(self.ntor+self.mpol*(2*self.ntor+1)):
+            m, n, label = self.indexMap(i+1)
+            if label == "re":
+                reArr[self.ntor+(2*self.ntor+1)*(m-1)+(n+self.ntor+1)] = vectorJ[i]
+            elif label == "im":
+                imArr[self.ntor+(2*self.ntor+1)*(m-1)+(n+self.ntor+1)] = vectorJ[i]
+        return ToroidalField(
+            nfp = self.nfp, 
+            mpol = self.mpol, 
+            ntor = self.ntor, 
+            reArr = reArr,
+            imArr = imArr
+        )
 
     def indexMap(self, index: int) -> Tuple:
         assert 1 <= index <= 2*self.ntor+2*self.mpol*(2*self.ntor+1)
