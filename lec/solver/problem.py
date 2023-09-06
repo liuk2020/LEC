@@ -25,7 +25,9 @@ class SurfaceEquilibrium:
         self.D = derivatePol(self.P) - derivateTor(self.Q)
 
     def getJacobian(self) -> ToroidalField:
-        pass
+        matrixCoef = self.getMatrixCoef() 
+        vectorB = self.getVectorB()
+        vectorJ = solve(matrixCoef, vectorB)
 
     def indexMap(self, index: int) -> Tuple:
         assert 1 <= index <= 2*self.ntor+2*self.mpol*(2*self.ntor+1)
