@@ -13,7 +13,7 @@ from typing import Tuple
 
 class SurfaceEquilibrium:
 
-    def __init__(self, surf: Surface, iota: float, aveJacobian: float) -> None:
+    def __init__(self, surf: Surface, iota: float, aveJacobian: float=1.0) -> None:
         self.surf = surf
         self.iota = iota
         self.aveJacobian = aveJacobian
