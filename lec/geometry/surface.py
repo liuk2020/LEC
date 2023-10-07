@@ -7,7 +7,6 @@ import numpy as np
 from typing import List
 from ..toroidalField import ToroidalField
 from ..toroidalField import derivatePol, derivateTor 
-from ..toroidalField import multiply
 
 
 class Surface:
@@ -15,21 +14,33 @@ class Surface:
     def __init__(self, rField: ToroidalField, zField: ToroidalField) -> None:
         self.r = rField
         self.z = zField
-        self.dRdTheta = derivatePol(rField)
-        self.dRdPhi = derivateTor(rField)
-        self.dZdTheta = derivatePol(zField)
-        self.dZdPhi = derivateTor(zField)
+
+    @property
+    def dRdTheta(self) -> ToroidalField:
+        return derivatePol(self.r)
+
+    @property
+    def dRdPhi(self) -> ToroidalField:
+        return derivateTor(self.r)
+
+    @property
+    def dZdTheta(self) -> ToroidalField:
+        return derivatePol(self.z)
+
+    @property
+    def dZdPhi(self) -> ToroidalField:
+        return derivateTor(self.z)
 
     @property
     def mertic(self) -> List[List[ToroidalField]]:
-        g_thetatheta = multiply(self.dRdTheta, self.dRdTheta) + multiply(self.dZdTheta, self.dZdTheta)
-        g_thetaphi = multiply(self.dRdTheta, self.dRdPhi) + multiply(self.dZdTheta, self.dZdPhi)
-        g_phiphi = multiply(self.dRdPhi, self.dRdPhi) + multiply(self.r, self.r) + multiply(self.dZdPhi, self.dZdPhi)
+        g_thetatheta = self.dRdTheta*self.dRdTheta + self.dZdTheta*self.dZdTheta
+        g_thetaphi = self.dRdTheta*self.dRdPhi + self.dZdTheta*self.dZdPhi
+        g_phiphi = self.dRdPhi*self.dRdPhi + self.r*self.r + self.dZdPhi*self.dZdPhi
         return [[g_thetatheta, g_thetaphi], [g_thetaphi, g_phiphi]]
 
     # fileio ##################################################################
     @classmethod
-    def readBoozXform(cls, boozFile: str, surfaceIndex: int):
+    def readBoozXform(cls, boozFile: str, surfaceIndex: int=-1):
         import booz_xform as bx
         b = bx.Booz_xform()
         try:
