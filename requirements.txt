@@ -1,3 +1,6 @@
 numpy
 matplotlib
 scipy
+xarray
+f90nml
+booz_xform
