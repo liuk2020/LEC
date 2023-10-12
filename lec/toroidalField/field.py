@@ -86,6 +86,14 @@ class ToroidalField:
         else:
             return self.imArr[self.indexMap(m, n)]
 
+    def setRe(self, m: int=0, n: int=0, value: float=0): 
+        assert 0 <= m <= self.mpol and -self.ntor <= n <= self.ntor
+        self.reArr[self.indexMap(m, n)] = value 
+
+    def setIm(self, m: int=0, n: int=0, value: float=0): 
+        assert 0 <= m <= self.mpol and -self.ntor <= n <= self.ntor
+        self.imArr[self.indexMap(m, n)] = value
+
     # operator overloading ####################################################
     def __add__(self, other):
         assert self.nfp == other.nfp

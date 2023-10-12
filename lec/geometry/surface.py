@@ -39,8 +39,12 @@ class Surface:
         return [[g_thetatheta, g_thetaphi], [g_thetaphi, g_phiphi]]
 
     # fileio ##################################################################
+    # TODO: read surface form booz_xform
     @classmethod
     def readBoozXform(cls, boozFile: str, surfaceIndex: int=-1):
+        """
+        This function cannot be trusted... 
+        """
         import booz_xform as bx
         b = bx.Booz_xform()
         try:
@@ -48,10 +52,14 @@ class Surface:
         except:
             print("Cannot open " + boozFile + "...")
         nfp = b.nfp
-        mpol = b.mpol
+        mpol = b.mpol-1
         ntor = b.ntor
         rbc = b.rmnc_b[surfaceIndex, :]
         zbs = b.zmns_b[surfaceIndex, :]
+        print(mpol)
+        print(ntor)
+        print((2*ntor+1)*mpol+ntor+1)
+        print(rbc.size)
         try:
             rbs = b.rmns_b[surfaceIndex, :]
             zbc = b.zmnc_b[surfaceIndex, :]
@@ -76,28 +84,44 @@ class Surface:
         try:
             inData = f90nml.read(vmecFile)["indata"]
         except:
-            print("Cannot open " + vmecFile + "...")
+            raise FileNotFoundError(
+                "Cannot open " + vmecFile + "..."
+            )
         nfp = inData["nfp"]
-        mpol = inData["mpol"]
+        mpol = inData["mpol"]-1
         ntor = inData["ntor"]
-        rbc = np.array(inData["rbc"])
-        zbs = np.array(inData["zbs"])
+        _rField = ToroidalField(
+            nfp=nfp, mpol=mpol, ntor=ntor,
+            reArr=np.zeros((2*ntor+1)*mpol+ntor+1), imArr=np.zeros((2*ntor+1)*mpol+ntor+1)
+        )
+        _zField = ToroidalField(
+            nfp=nfp, mpol=mpol, ntor=ntor,
+            reArr=np.zeros((2*ntor+1)*mpol+ntor+1), imArr=np.zeros((2*ntor+1)*mpol+ntor+1)
+        )
+        arrRbc = np.array(inData["rbc"]) 
+        arrZbs = np.array(inData["zbs"]) 
+        arrRbc[arrRbc==None] = 0
+        arrZbs[arrZbs==None] = 0
         try:
-            rbs = np.array(inData["rbs"])
-            zbc = np.array(inData["zbc"])
+            arrRbs = np.array(inData["rbs"]) 
+            arrZbc = np.array(inData["zbc"]) 
+            arrRbs[arrRbs==None] = 0
+            arrZbc[arrZbc==None] = 0
         except KeyError:
-            rbs = np.zeros_like(rbc)
-            zbc = np.zeros_like(rbc)
-        rField = ToroidalField(
-            nfp = nfp, mpol = mpol, ntor = ntor,
-            reArr = rbc, imArr = -rbs
-        )
-        zField = ToroidalField(
-            nfp = nfp, mpol = mpol, ntor = ntor,
-            reArr = zbc, imArr = -zbs
-        )
+            arrRbs = np.zeros_like(arrRbc)
+            arrZbc = np.zeros_like(arrRbc)
+        nmin, mmin = inData.start_index["rbc"]
+        mlen, nlen = np.shape(inData["rbc"])
+        for i in range(mlen):
+            for j in range(nlen):
+                m = i + mmin
+                n = j + nmin
+                _rField.setRe(m, n, value=arrRbc[i,j])
+                _rField.setIm(m, n, value=-arrRbs[i,j])
+                _zField.setRe(m, n, value=arrZbc[i,j])
+                _zField.setIm(m, n, value=-arrZbs[i,j])
         return cls(
-            rField, zField
+            _rField, _zField
         )
 
     @classmethod
@@ -106,9 +130,11 @@ class Surface:
         try:
             inData = xarray.open_dataset(vmecFile)
         except:
-            print("Cannot open " + vmecFile + "...")
+            raise FileNotFoundError(
+                "Cannot open " + vmecFile + "..."
+            )
         nfp = int(inData["nfp"].values)
-        mpol = int(inData["mpol"].values)
+        mpol = int(inData["mpol"].values)-1
         ntor = int(inData["ntor"].values)
         rbc = inData["rmnc"].values[surfaceIndex,:]
         zbs = inData["zmns"].values[surfaceIndex,:]
