@@ -20,8 +20,8 @@ class SurfaceEquilibrium:
         self.nfp = self.surf.r.nfp
         self.mpol = self.surf.r.mpol
         self.ntor = self.surf.r.ntor
-        self.P = iota*surf.mertic[0][1] + surf.mertic[1][1]
-        self.Q = iota*surf.mertic[0][0] + surf.mertic[0][1]
+        self.P = surf.mertic[0][1]*iota + surf.mertic[1][1]
+        self.Q = surf.mertic[0][0]*iota + surf.mertic[0][1]
         self.D = derivatePol(self.P) - derivateTor(self.Q)
 
     def getJacobian(self) -> ToroidalField:
