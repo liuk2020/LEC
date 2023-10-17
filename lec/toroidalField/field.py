@@ -94,6 +94,38 @@ class ToroidalField:
         assert 0 <= m <= self.mpol and -self.ntor <= n <= self.ntor
         self.imArr[self.indexMap(m, n)] = value
 
+    # plotting ###############################################################
+    def plot_plt(self, ntheta: int=360, nzeta: int=360, ax=None, fig=None, onePeriod: bool=True, **kwargs):
+        from matplotlib import cm
+        import matplotlib.pyplot as plt 
+        thetaArr = np.linspace(0, 2*np.pi, ntheta)
+        thetaValue =  np.linspace(0, 2*np.pi, 3)
+        if onePeriod:
+            zetaArr = np.linspace(0, 2*np.pi/self.nfp, nzeta)
+            zetaValue =  np.linspace(0, 2*np.pi/self.nfp, 3)
+        else:
+            zetaArr = np.linspace(0, 2*np.pi, nzeta) 
+            zetaValue =  np.linspace(0, 2*np.pi, 3)
+        if ax is None: 
+            fig, ax = plt.subplots() 
+        plt.sca(ax) 
+        thetaGrid, zetaGrid = np.meshgrid(thetaArr, zetaArr) 
+        valueGrid = self.getValue(thetaGrid, zetaGrid) 
+        # ctrig = ax.contourf(zetaGrid, thetaGrid, valueGrid, cmap=cm.rainbow)
+        # fig.colorbar(ctrig)
+        ax.contour(zetaGrid, thetaGrid, valueGrid, cmap=cm.rainbow)
+        if onePeriod:
+            ax.set_xlabel("$"+str(self.nfp)+r"\varphi$", fontsize=18)
+        else:
+            ax.set_xlabel(r"$\varphi$", fontsize=18)
+        ax.set_ylabel(r"$\theta$", fontsize=18)
+        ax.set_xticks(zetaValue)
+        ax.set_xticklabels(["$0$", r"$\pi$", r"$2\pi$"], fontsize=18) 
+        ax.set_yticks(thetaValue)
+        ax.set_yticklabels(["$0$", r"$\pi$", r"$2\pi$"], fontsize=18)
+        return
+
+
     # operator overloading ####################################################
     def __add__(self, other):
         assert self.nfp == other.nfp
