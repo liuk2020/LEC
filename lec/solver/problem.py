@@ -23,6 +23,45 @@ class SurfaceEquilibrium:
         self.P = surf.mertic[0][1]*iota + surf.mertic[1][1]
         self.Q = surf.mertic[0][0]*iota + surf.mertic[0][1]
         self.D = derivatePol(self.P) - derivateTor(self.Q)
+    
+    def run(self):
+        self.Jacobian = self.getJacobian()
+
+    def plotB(self, ntheta: int=360, nzeta: int=360, ax=None, fig=None, onePeriod: bool=True, **kwargs):
+        from matplotlib import cm
+        import matplotlib.pyplot as plt 
+        thetaArr = np.linspace(0, 2*np.pi, ntheta)
+        thetaValue =  np.linspace(0, 2*np.pi, 3)
+        if onePeriod:
+            zetaArr = np.linspace(0, 2*np.pi/self.nfp, nzeta)
+            zetaValue =  np.linspace(0, 2*np.pi/self.nfp, 3)
+        else:
+            zetaArr = np.linspace(0, 2*np.pi, nzeta) 
+            zetaValue =  np.linspace(0, 2*np.pi, 3)
+        if ax is None: 
+            fig, ax = plt.subplots() 
+        plt.sca(ax) 
+        thetaGrid, zetaGrid = np.meshgrid(thetaArr, zetaArr) 
+        JacobianGrid = self.Jacobian.getValue(thetaGrid, zetaGrid)
+        metric = self.surf.mertic
+        g_thetathetaGrid = metric[0][0].getValue(thetaGrid, zetaGrid)
+        g_thetazetaGrid = metric[0][1].getValue(thetaGrid, zetaGrid)
+        g_zetazetaGrid = metric[1][1].getValue(thetaGrid, zetaGrid)
+        B2Grid = self.iota*self.iota*g_thetathetaGrid + 2*self.iota*g_thetazetaGrid + g_zetazetaGrid / np.power(JacobianGrid,2)
+        ctrig = ax.contourf(zetaGrid, thetaGrid, np.power(B2Grid,1/2), cmap=cm.rainbow)
+        colorbar = fig.colorbar(ctrig)
+        colorbar.ax.tick_params(labelsize=18)
+        # ax.contour(zetaGrid, thetaGrid, np.power(B2Grid,1/2), cmap=cm.rainbow)
+        if onePeriod and self.nfp!=1:
+            ax.set_xlabel("$"+str(self.nfp)+r"\varphi$", fontsize=18)
+        else:
+            ax.set_xlabel(r"$\varphi$", fontsize=18)
+        ax.set_ylabel(r"$\theta$", fontsize=18)
+        ax.set_xticks(zetaValue)
+        ax.set_xticklabels(["$0$", r"$\pi$", r"$2\pi$"], fontsize=18) 
+        ax.set_yticks(thetaValue)
+        ax.set_yticklabels(["$0$", r"$\pi$", r"$2\pi$"], fontsize=18)
+        return
 
     def getJacobian(self) -> ToroidalField:
         matrixCoef = self.getMatrixCoef() 

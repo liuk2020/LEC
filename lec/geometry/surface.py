@@ -116,10 +116,16 @@ class Surface:
             for j in range(nlen):
                 m = i + mmin
                 n = j + nmin
-                _rField.setRe(m, n, value=arrRbc[i,j])
-                _rField.setIm(m, n, value=-arrRbs[i,j])
-                _zField.setRe(m, n, value=arrZbc[i,j])
-                _zField.setIm(m, n, value=-arrZbs[i,j])
+                if m==0 and n==0:
+                    _rField.setRe(m, n, value=arrRbc[i,j])
+                    _rField.setIm(m, n, value=-arrRbs[i,j])
+                    _zField.setRe(m, n, value=arrZbc[i,j])
+                    _zField.setIm(m, n, value=-arrZbs[i,j])
+                else:
+                    _rField.setRe(m, n, value=arrRbc[i,j]/2)
+                    _rField.setIm(m, n, value=-arrRbs[i,j]/2)
+                    _zField.setRe(m, n, value=arrZbc[i,j]/2)
+                    _zField.setIm(m, n, value=-arrZbs[i,j]/2)
         return cls(
             _rField, _zField
         )
@@ -144,6 +150,10 @@ class Surface:
         except:
             rbs = np.zeros_like(rbc)
             zbc = np.zeros_like(rbc)
+        rbc[1:-1] = rbc[1:-1] / 2
+        zbs[1:-1] = zbs[1:-1] / 2
+        rbs[1:-1] = rbs[1:-1] / 2
+        zbs[1:-1] = zbs[1:-1] / 2
         rField = ToroidalField(
             nfp = nfp, mpol = mpol, ntor = ntor,
             reArr = rbc, imArr = -rbs

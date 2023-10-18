@@ -111,10 +111,11 @@ class ToroidalField:
         plt.sca(ax) 
         thetaGrid, zetaGrid = np.meshgrid(thetaArr, zetaArr) 
         valueGrid = self.getValue(thetaGrid, zetaGrid) 
-        # ctrig = ax.contourf(zetaGrid, thetaGrid, valueGrid, cmap=cm.rainbow)
-        # fig.colorbar(ctrig)
-        ax.contour(zetaGrid, thetaGrid, valueGrid, cmap=cm.rainbow)
-        if onePeriod:
+        ctrig = ax.contourf(zetaGrid, thetaGrid, valueGrid, cmap=cm.rainbow)
+        # ax.contour(zetaGrid, thetaGrid, valueGrid, cmap=cm.rainbow)
+        colorbar = fig.colorbar(ctrig)
+        colorbar.ax.tick_params(labelsize=18)
+        if onePeriod and self.nfp!=1:
             ax.set_xlabel("$"+str(self.nfp)+r"\varphi$", fontsize=18)
         else:
             ax.set_xlabel(r"$\varphi$", fontsize=18)
