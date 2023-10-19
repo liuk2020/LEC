@@ -77,14 +77,22 @@ class ToroidalField:
     def getRe(self, m: int=0, n: int=0) -> float: 
         if abs(m) > self.mpol or abs(n) > self.ntor:
             return 0
+        elif m == 0 and n < 0:
+            return self.reArr[self.indexMap(0, -n)] 
+        elif m < 0:
+            return self.reArr[self.indexMap(-m, -n)] 
         else:
             return self.reArr[self.indexMap(m, n)] 
 
     def getIm(self, m: int, n: int) -> float:
         if abs(m) > self.mpol or abs(n) > self.ntor:
             return 0
+        elif m == 0 and n < 0:
+            return -self.imArr[self.indexMap(0, -n)] 
+        elif m < 0:
+            return -self.imArr[self.indexMap(-m, -n)] 
         else:
-            return self.imArr[self.indexMap(m, n)]
+            return self.imArr[self.indexMap(m, n)] 
 
     def setRe(self, m: int=0, n: int=0, value: float=0): 
         assert 0 <= m <= self.mpol and -self.ntor <= n <= self.ntor

@@ -1,3 +1,3 @@
 from .field import ToroidalField
-from .sample import fftToroidalField, fftToroidalField_toroidalReversed
+from .sample import fftToroidalField
 from .derivative import derivatePol, derivateTor
