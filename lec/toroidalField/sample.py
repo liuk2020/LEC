@@ -28,8 +28,12 @@ def fftToroidalField(sampleValue: np.ndarray, nfp: int=1) -> ToroidalField:
     )
 
 
-def fftToroidalField_toroidalReversed(sampleValue: np.ndarray, nfp: int=1) -> ToroidalField:
-    return fftToroidalField(np.flip(sampleValue, 1), nfp)
+# TODO
+# def fftToroidalField_toroidalReversed(sampleValue: np.ndarray, nfp: int=1) -> ToroidalField:
+#     """
+#     This function cannot be trusted... 
+#     """
+#     return fftToroidalField(np.flip(sampleValue, 1), nfp)
     
 
 
