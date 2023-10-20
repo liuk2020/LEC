@@ -7,22 +7,31 @@ import numpy as np
 from scipy.linalg import solve
 from ..geometry import Surface
 from ..toroidalField import ToroidalField
-from ..toroidalField import derivatePol, derivateTor
+from ..toroidalField import derivatePol, derivateTor, changeResolution
 from typing import Tuple
 
 
 class SurfaceEquilibrium:
 
     def __init__(self, surf: Surface, iota: float, aveJacobian: float=1.0) -> None:
-        self.surf = surf
+        self.initSurf(surf)
         self.iota = iota
         self.aveJacobian = aveJacobian
         self.nfp = self.surf.r.nfp
         self.mpol = self.surf.r.mpol
         self.ntor = self.surf.r.ntor
-        self.P = surf.mertic[0][1]*iota + surf.mertic[1][1]
-        self.Q = surf.mertic[0][0]*iota + surf.mertic[0][1]
+        self.g_thetatheta, self.g_thetaphi, self.g_phiphi = self.surf.mertic
+        self.P = self.g_thetaphi*iota + self.g_phiphi
+        self.Q = self.g_thetatheta*iota + self.g_thetaphi
         self.D = derivatePol(self.P) - derivateTor(self.Q)
+
+    def initSurf(self, surf: Surface) -> None:
+        """
+        Change the resolution of the surface! 
+        """
+        _r = changeResolution(surf.r, 2*surf.r.mpol, 2*surf.r.ntor)
+        _z = changeResolution(surf.z, 2*surf.z.mpol, 2*surf.z.ntor)
+        self.surf = Surface(_r, _z)
     
     def run(self):
         self.Jacobian = self.getJacobian()
@@ -43,10 +52,9 @@ class SurfaceEquilibrium:
         plt.sca(ax) 
         thetaGrid, zetaGrid = np.meshgrid(thetaArr, zetaArr) 
         JacobianGrid = self.Jacobian.getValue(thetaGrid, zetaGrid)
-        metric = self.surf.mertic
-        g_thetathetaGrid = metric[0][0].getValue(thetaGrid, zetaGrid)
-        g_thetazetaGrid = metric[0][1].getValue(thetaGrid, zetaGrid)
-        g_zetazetaGrid = metric[1][1].getValue(thetaGrid, zetaGrid)
+        g_thetathetaGrid = self.g_thetatheta.getValue(thetaGrid, zetaGrid)
+        g_thetazetaGrid = self.g_thetaphi.getValue(thetaGrid, zetaGrid)
+        g_zetazetaGrid = self.g_phiphi.getValue(thetaGrid, zetaGrid)
         B2Grid = self.iota*self.iota*g_thetathetaGrid + 2*self.iota*g_thetazetaGrid + g_zetazetaGrid / np.power(JacobianGrid,2)
         ctrig = ax.contourf(zetaGrid, thetaGrid, np.power(B2Grid,1/2), cmap=cm.rainbow)
         colorbar = fig.colorbar(ctrig)

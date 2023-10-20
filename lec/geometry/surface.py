@@ -4,7 +4,7 @@
 
 
 import numpy as np
-from typing import List
+from typing import Tuple
 from ..toroidalField import ToroidalField
 from ..toroidalField import derivatePol, derivateTor 
 
@@ -32,11 +32,11 @@ class Surface:
         return derivateTor(self.z)
 
     @property
-    def mertic(self) -> List[List[ToroidalField]]:
+    def mertic(self) -> Tuple[ToroidalField]:
         g_thetatheta = self.dRdTheta*self.dRdTheta + self.dZdTheta*self.dZdTheta
         g_thetaphi = self.dRdTheta*self.dRdPhi + self.dZdTheta*self.dZdPhi
         g_phiphi = self.dRdPhi*self.dRdPhi + self.r*self.r + self.dZdPhi*self.dZdPhi
-        return [[g_thetatheta, g_thetaphi], [g_thetaphi, g_phiphi]]
+        return g_thetatheta, g_thetaphi, g_phiphi
 
     # fileio ##################################################################
     # TODO: read surface form booz_xform
