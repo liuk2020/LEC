@@ -136,23 +136,23 @@ class SurfaceEquilibrium:
                         matrixCoef[i,j] = - self.getIm_CoefMN(m,n,_m,_n) + self.getIm_CoefMN(m,n,-_m,-_n)
                 elif equationLabel == "im":
                     if variableLabel == "re":
-                        matrixCoef[i,j] = self.getIm_CoefMN(m,n,_m,_n) + self.getIm_CoefMN(m,n,-_m,-_n)
+                        matrixCoef[i,j] = self.getIm_CoefMN(m,n,_m,_n) - self.getIm_CoefMN(m,n,-_m,-_n)
                     elif variableLabel == "im":
-                        matrixCoef[i,j] = self.getRe_CoefMN(m,n,_m,_n) - self.getRe_CoefMN(m,n,-_m,-_n)
+                        matrixCoef[i,j] = self.getRe_CoefMN(m,n,_m,_n) + self.getRe_CoefMN(m,n,-_m,-_n)
         return matrixCoef
 
     def getRe_CoefMN(self, m: int, n : int, _m : int, _n: int) -> float:
         return (
             self.D.getRe(m-_m,n-_n) 
-            - _m*self.P.getIm(m-_m,n-_n) 
-            - _n*self.nfp*self.Q.getIm(m-_m,n-_n)
+            + _m*self.P.getIm(m-_m,n-_n) 
+            + _n*self.nfp*self.Q.getIm(m-_m,n-_n)
         )
 
     def getIm_CoefMN(self, m: int, n : int, _m : int, _n: int) -> float:
         return (
             self.D.getIm(m-_m,n-_n) 
-            + _m*self.P.getRe(m-_m,n-_n)
-            + _n*self.nfp*self.Q.getRe(m-_m,n-_n)
+            - _m*self.P.getRe(m-_m,n-_n)
+            - _n*self.nfp*self.Q.getRe(m-_m,n-_n)
         )
 
 
