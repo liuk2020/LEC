@@ -34,8 +34,26 @@ class SurfaceEquilibrium:
         self.surf = Surface(_r, _z)
     
     def run(self):
-        self.Jacobian = self.getJacobian()
+        self.Jacobian = self.getJacobian() 
 
+    def getB(self, thetaArr: np.ndarray, zetaArr: np.ndarray) -> np.ndarray:
+        try:
+            JacobianGrid = self.Jacobian.getValue(thetaArr, zetaArr)
+        except AttributeError:
+            self.run() 
+            JacobianGrid = self.Jacobian.getValue(thetaArr, zetaArr) 
+        except: 
+            print("An error occurred while calculating the Jacobian... ")
+        g_thetathetaGrid = self.g_thetatheta.getValue(thetaArr, zetaArr)
+        g_thetaphiGrid = self.g_thetaphi.getValue(thetaArr, zetaArr)
+        g_phiphiGrid = self.g_phiphi.getValue(thetaArr, zetaArr)
+        B2Grid = (
+            np.power(JacobianGrid, 2) *
+            (g_phiphiGrid + 2*self.iota*g_thetaphiGrid + self.iota*self.iota*g_thetaphiGrid)
+        )
+        return np.power(B2Grid, 0.5)
+
+    # TODO
     def plotB(self, ntheta: int=360, nzeta: int=360, ax=None, fig=None, onePeriod: bool=True, **kwargs):
         from matplotlib import cm
         import matplotlib.pyplot as plt 
@@ -51,11 +69,15 @@ class SurfaceEquilibrium:
             fig, ax = plt.subplots() 
         plt.sca(ax) 
         thetaGrid, zetaGrid = np.meshgrid(thetaArr, zetaArr) 
-        JacobianGrid = self.Jacobian.getValue(thetaGrid, zetaGrid)
+        try: 
+            JacobianGrid = self.Jacobian.getValue(thetaGrid, zetaGrid)
+        except AttributeError:
+            self.run()
+            JacobianGrid = self.Jacobian.getValue(thetaGrid, zetaGrid)
         g_thetathetaGrid = self.g_thetatheta.getValue(thetaGrid, zetaGrid)
         g_thetazetaGrid = self.g_thetaphi.getValue(thetaGrid, zetaGrid)
         g_zetazetaGrid = self.g_phiphi.getValue(thetaGrid, zetaGrid)
-        B2Grid = self.iota*self.iota*g_thetathetaGrid + 2*self.iota*g_thetazetaGrid + g_zetazetaGrid / np.power(JacobianGrid,2)
+        B2Grid = np.power(JacobianGrid, 2) * (g_zetazetaGrid + 2*self.iota*g_thetazetaGrid + self.iota*self.iota*g_thetathetaGrid)
         ctrig = ax.contourf(zetaGrid, thetaGrid, np.power(B2Grid,1/2), cmap=cm.rainbow)
         colorbar = fig.colorbar(ctrig)
         colorbar.ax.tick_params(labelsize=18)
@@ -78,19 +100,20 @@ class SurfaceEquilibrium:
         reArr = np.zeros(self.ntor+1+self.mpol*(2*self.ntor+1))
         imArr = np.zeros(self.ntor+1+self.mpol*(2*self.ntor+1))
         reArr[0] = self.aveJacobian
-        for i in range(self.ntor+self.mpol*(2*self.ntor+1)):
-            m, n, label = self.indexMap(i+1)
-            if label == "re":
-                reArr[self.ntor+(2*self.ntor+1)*(m-1)+(n+self.ntor+1)] = vectorJ[i]
-            elif label == "im":
-                imArr[self.ntor+(2*self.ntor+1)*(m-1)+(n+self.ntor+1)] = vectorJ[i]
-        return ToroidalField(
+        _field = ToroidalField(
             nfp = self.nfp, 
             mpol = self.mpol, 
             ntor = self.ntor, 
             reArr = reArr,
             imArr = imArr
         )
+        for i in range(self.ntor+self.mpol*(2*self.ntor+1)):
+            m, n, label = self.indexMap(i+1)
+            if label == "re":
+                _field.setRe(m, n, vectorJ[i])
+            elif label == "im":
+                _field.setIm(m, n, vectorJ[i])
+        return _field
 
     def indexMap(self, index: int) -> Tuple:
         assert 1 <= index <= 2*self.ntor+2*self.mpol*(2*self.ntor+1)
