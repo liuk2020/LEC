@@ -1,1 +1,1 @@
-from .problem import SurfaceEquilibrium
+from .equilibriumProblem import SurfaceEquilibrium
